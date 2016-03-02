@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"os"
 )
@@ -10,10 +11,36 @@ import (
 var optConf = flag.String("c", "./config.json", "config file")
 
 func main() {
-	initConfig(*optConf)
+	ddns, err := newConfig(*optConf).newDDNS()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	ddns.initHttp()
+
+	domainId, err := ddns.domainID()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	recordId, err := ddns.recordID(domainId)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	fmt.Println(domainId, recordId)
+	ip, err := currentIP()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	fmt.Println("ip", ip)
+
 }
 
-func initConfig(configPath string) *Config {
+func newConfig(configPath string) *Config {
 	if _, err := os.Stat(configPath); err != nil && os.IsNotExist(err) {
 		panic("can't find config file!")
 	}
@@ -26,7 +53,7 @@ func initConfig(configPath string) *Config {
 	if err != nil {
 		panic("deserialize json error!")
 	}
-	if config.Check() {
+	if config.checked {
 		panic("config not complete!")
 	}
 	return &config
