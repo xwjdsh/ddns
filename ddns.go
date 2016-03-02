@@ -33,7 +33,7 @@ func (this *DDNS) initHttp() {
 	params.Add("error_on_empty", "no")
 }
 
-func (this *DDNS) domainID() (int64, error) {
+func (this *DDNS) domainID() (int, error) {
 	param := url.Values{}
 	param.Add("type", "all")
 	param.Add("offset", "0")
@@ -55,16 +55,16 @@ func (this *DDNS) domainID() (int64, error) {
 	if err != nil {
 		return 0, errors.New("没有指定的域名，请检查!")
 	}
-	return int64(id), nil
+	return id, nil
 }
 
-func (this *DDNS) recordID(domainID int64) (int, error) {
+func (this *DDNS) recordID(domainID int) (int, string, error) {
 	param := url.Values{}
-	param.Add("domain_id", strconv.FormatInt(domainID, 10))
+	param.Add("domain_id", strconv.Itoa(domainID))
 	param.Add("sub_domain", this.Config.SubDomain)
 	resp, err := this.http.Send("POSTFORM", "Record.List", param, nil)
 	if err != nil {
-		return 0, errors.New("获取Record.List错误，请检查!")
+		return 0, "", errors.New("获取Record.List错误，请检查!")
 	}
 	data := map[string]interface{}{}
 	dec := json.NewDecoder(bytes.NewReader(resp))
@@ -72,11 +72,12 @@ func (this *DDNS) recordID(domainID int64) (int, error) {
 	jq := jsonq.NewQuery(data)
 	if code, _ := jq.Int("status", "code"); code != 1 {
 		message, _ := jq.String("status", "message")
-		return 0, errors.New(message)
+		return 0, "", errors.New(message)
 	}
 	id, err := jq.Int("records", "0", "id")
+	value, err := jq.String("records", "0", "value")
 	if err != nil {
-		return 0, errors.New("没有指定的域名记录，请检查!")
+		return 0, "", errors.New("没有指定的域名记录，请检查!")
 	}
-	return id, nil
+	return id, value, nil
 }
