@@ -24,7 +24,7 @@ func main() {
 		fmt.Println(err.Error())
 		return
 	}
-	recordId, recordIp, err := ddns.recordID(domainId)
+	recordId, recordIP, err := ddns.recordID(domainId)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -36,7 +36,9 @@ func main() {
 		fmt.Println(err.Error())
 		return
 	}
-	fmt.Println("ip", ip, recordIp)
+	if ip != "" && recordIP != ip {
+		ddns.recordModify(domainId, recordId, ip)
+	}
 
 }
 

@@ -16,5 +16,6 @@ func currentIP() (string, error) {
 	if err != nil {
 		return "", errors.New("解析响应出错!")
 	}
+	//fmt.Println()
 	return string(result[:]), nil
 }

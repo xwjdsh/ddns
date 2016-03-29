@@ -81,3 +81,20 @@ func (this *DDNS) recordID(domainID int) (int, string, error) {
 	}
 	return id, value, nil
 }
+
+func (this *DDNS) recordModify(domainID, recordID int, newValue string) {
+	param := url.Values{}
+	param.Add("domain_id", strconv.Itoa(domainID))
+	param.Add("record_id", strconv.Itoa(recordID))
+	param.Add("sub_domain", this.Config.SubDomain)
+	param.Add("record_type", "A")
+	param.Add("record_line", "默认")
+	param.Add("value", newValue)
+	resp, err := this.http.SendAndToString("POSTFORM", "Record.Modify", param, nil)
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Println(resp)
+	}
+
+}
