@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 func currentIP() (string, error) {
@@ -16,6 +17,5 @@ func currentIP() (string, error) {
 	if err != nil {
 		return "", errors.New("解析响应出错!")
 	}
-	//fmt.Println()
-	return string(result[:]), nil
+	return strings.TrimSpace(string(result[:])), nil
 }

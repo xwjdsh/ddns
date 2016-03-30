@@ -36,6 +36,8 @@ func main() {
 		fmt.Println(err.Error())
 		return
 	}
+	fmt.Println("current ip:", ip)
+	fmt.Println("record ip:", recordIP)
 	if ip != "" && recordIP != ip {
 		ddns.recordModify(domainId, recordId, ip)
 	}
